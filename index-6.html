@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b16">
+<meta name="description" content="BAYEJID AI — a knowledge-first AI assistant.">
+<title>BAYEJID AI — Chat</title>
+<style>
+:root{color-scheme:dark;--bg:#080b16;--panel:rgba(17,23,42,.88);--line:rgba(148,163,184,.17);--text:#f3f6ff;--muted:#9aa7c2;--cyan:#52e3ff;--danger:#ff9b9b;--good:#42dfa0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg)}
+body{min-height:100dvh;color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 10% 0%,rgba(66,90,210,.2),transparent 38%),radial-gradient(ellipse at 100% 85%,rgba(30,190,220,.11),transparent 35%),var(--bg)}
+button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.app{max-width:1000px;height:100dvh;min-height:520px;margin:auto;display:flex;flex-direction:column;padding:16px;gap:13px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:20px;background:var(--panel);backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border-radius:14px;font-weight:900;color:#08101b;background:linear-gradient(135deg,var(--cyan),#9c8bff);box-shadow:0 5px 25px #52e3ff22}
+h1{margin:0;font-size:17px;letter-spacing:.08em}.subtitle{color:var(--muted);font-size:12px;margin-top:4px}
+.status{display:flex;align-items:center;gap:7px;color:#b8f7d4;font-size:12px;white-space:nowrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good)}.status.error{color:var(--danger)}.status.error .dot{background:var(--danger);box-shadow:0 0 10px var(--danger)}
+.layout{flex:1;min-height:0;display:grid;grid-template-columns:210px minmax(0,1fr);gap:13px}
+aside,.chat{min-height:0;border:1px solid var(--line);border-radius:22px;background:var(--panel);backdrop-filter:blur(18px)}
+aside{padding:16px;display:flex;flex-direction:column;gap:12px}
+.new-chat,.settings-button,.clear,.suggestions button{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:11px 12px;text-align:left;transition:background .15s,border-color .15s}
+.new-chat:hover,.settings-button:hover,.clear:hover,.suggestions button:hover{background:rgba(82,227,255,.08);border-color:#52e3ff55}
+.side-label{margin:13px 0 2px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.15em}.feature{font-size:13px;color:#cbd5e8;padding:6px 0}.side-note{margin-top:auto;color:var(--muted);font-size:11px;line-height:1.6}.endpoint{font-size:11px;line-height:1.6;overflow-wrap:anywhere;color:#b7c6e4}
+.chat{display:flex;flex-direction:column;overflow:hidden}.chat-top{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.chat-title{font-weight:750;font-size:14px}.chat-caption{color:var(--muted);font-size:11px;margin-top:4px}.clear{color:var(--muted);padding:8px 10px;font-size:12px;white-space:nowrap}
+.messages{flex:1;min-height:0;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+.welcome{margin:auto;max-width:450px;text-align:center;padding:24px 10px}.welcome-icon{font-size:35px;margin-bottom:13px;color:var(--cyan);text-shadow:0 0 28px #52e3ff55}.welcome h2{font-size:clamp(23px,4vw,31px);margin:0 0 10px;letter-spacing:-.04em}.welcome p{margin:0;color:var(--muted);line-height:1.65;font-size:13px}
+.suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}.suggestions button{border-radius:999px;padding:9px 12px;font-size:12px;text-align:center}
+.message{display:flex;gap:10px;align-items:flex-start;max-width:90%;animation:rise .18s ease-out}.message.user{align-self:flex-end;flex-direction:row-reverse}.avatar{width:30px;height:30px;flex:0 0 30px;border-radius:10px;display:grid;place-items:center;font-size:10px;font-weight:850;background:#202a43;color:var(--cyan)}.user .avatar{color:white;background:#655df0}
+.content{min-width:0;max-width:calc(100% - 40px)}.bubble{border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:12px 14px;line-height:1.65;font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap;background:rgba(255,255,255,.045)}.user .bubble{background:linear-gradient(135deg,#5865f2,#7757dc);border-color:transparent;border-radius:16px 4px 16px 16px}.meta{color:var(--muted);font-size:10px;margin-top:7px;line-height:1.5}.error-text{color:var(--danger)!important}
+.composer-wrap{border-top:1px solid var(--line);padding:14px 16px 13px}.composer{display:flex;align-items:flex-end;gap:10px;border:1px solid rgba(148,163,184,.24);background:rgba(3,7,18,.48);padding:8px;border-radius:16px;transition:border-color .15s}.composer:focus-within{border-color:#52e3ff88}
+textarea{flex:1;min-width:0;resize:none;max-height:140px;min-height:40px;border:0;outline:0;background:transparent;color:var(--text);padding:10px 8px;line-height:1.45;font-size:13px}textarea::placeholder{color:#74809b}
+.send{width:42px;height:42px;flex:0 0 42px;border:0;border-radius:12px;color:#07101c;font-size:19px;font-weight:900;background:linear-gradient(135deg,var(--cyan),#9e93ff);transition:opacity .15s,transform .15s}.send:hover:not(:disabled){transform:translateY(-1px)}.send:disabled{opacity:.45;cursor:not-allowed}
+.footnote{text-align:center;color:#7f8ba5;font-size:10px;margin-top:9px}
+.settings{display:none;border-top:1px solid var(--line);padding:14px 17px}.settings.open{display:block}.settings label{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}.settings-row{display:flex;gap:8px}.settings input{min-width:0;flex:1;color:var(--text);background:#090e1b;border:1px solid var(--line);border-radius:10px;padding:10px;outline:none}.save{background:#252f49;color:white;border:1px solid var(--line);border-radius:10px;padding:0 13px}.hint{display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:7px}
+@keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:680px){.app{padding:9px;gap:9px;min-height:480px}header{padding:11px 12px;border-radius:16px}.logo{width:38px;height:38px;flex-basis:38px}h1{font-size:14px}.subtitle{font-size:11px}.status{font-size:10px}.layout{grid-template-columns:minmax(0,1fr)}aside{display:none}.chat{border-radius:17px}.messages{padding:15px 11px}.message{max-width:97%}.chat-top{padding:13px}.composer-wrap{padding:10px}.bubble{padding:10px 12px}.content{max-width:calc(100% - 38px)}}
+@media(max-height:600px){.app{min-height:0}.messages{padding-top:12px;padding-bottom:12px}.welcome{padding:10px}.welcome-icon{margin-bottom:5px}.welcome h2{font-size:23px}.suggestions{margin-top:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true">B</div><div><h1>BAYEJID <span style="color:#72e7ff">AI</span></h1><div class="subtitle">Your knowledge-first AI assistant</div></div></div>
+  <div class="status" id="status"><span class="dot"></span><span id="connectionLabel">API ready</span></div>
+</header>
+<div class="layout">
+  <aside>
+    <button class="new-chat" id="newChat" type="button">＋ &nbsp; New conversation</button>
+    <div class="side-label">BUILT FOR</div><div class="feature">✦ &nbsp; Local knowledge first</div><div class="feature">⌁ &nbsp; API-powered replies</div><div class="feature">◈ &nbsp; Fast, simple chat</div>
+    <div class="side-label">API ENDPOINT</div><div class="endpoint">/api/v1/chat</div>
+    <button class="settings-button" id="toggleSettings" type="button">⚙ &nbsp; API settings</button>
+    <div class="side-note">BAYEJID AI<br>Independent chat interface</div>
+  </aside>
+  <section class="chat" aria-label="BAYEJID AI chat">
+    <div class="chat-top"><div><div class="chat-title" id="chatTitle">New chat</div><div class="chat-caption">Connected to your BAYEJID API</div></div><button class="clear" id="clearChat" type="button">Clear chat</button></div>
+    <div class="messages" id="messages" aria-live="polite">
+      <div class="welcome" id="welcome"><div class="welcome-icon">✦</div><h2>What can I help you with?</h2><p>Ask a question and BAYEJID AI will use your connected API to respond.</p><div class="suggestions"><button type="button" data-prompt="Who is Bayejid?">Who is Bayejid?</button><button type="button" data-prompt="What is your name?">Your name</button><button type="button" data-prompt="What can you do?">What can you do?</button></div></div>
+    </div>
+    <div class="settings" id="settings"><label for="apiKey">Test API key (kept in memory only)</label><div class="settings-row"><input id="apiKey" type="password" placeholder="Paste test key with chat:use" autocomplete="off" spellcheck="false" aria-describedby="keyHint"><button class="save" id="saveKey" type="button">Use key</button></div><small class="hint" id="keyHint">Testing only: do not publish a real API key in HTML. For a public site, use a server-side proxy that keeps the key secret.</small></div>
+    <div class="composer-wrap"><form class="composer" id="chatForm"><textarea id="messageInput" rows="1" placeholder="Message BAYEJID AI..." aria-label="Message BAYEJID AI"></textarea><button class="send" id="sendButton" type="submit" aria-label="Send message">↑</button></form><div class="footnote">AI can make mistakes. Don't send passwords or private information.</div></div>
+  </section>
+</div>
+</div>
+<script>
+(() => {
+  "use strict";
+  // The frontend Vercel project must include vercel.json with a rewrite for /api/*.
+  const API_URL = "/api/v1/chat";
+  let apiKey = "", busy = false;
+  const messages = document.getElementById("messages");
+  const input = document.getElementById("messageInput");
+  const form = document.getElementById("chatForm");
+  const send = document.getElementById("sendButton");
+  const settings = document.getElementById("settings");
+  const keyInput = document.getElementById("apiKey");
+  const label = document.getElementById("connectionLabel");
+  const status = document.getElementById("status");
+  const chatTitle = document.getElementById("chatTitle");
+
+  function setStatus(text, isError = false) {
+    label.textContent = text;
+    status.classList.toggle("error", isError);
+  }
+  function scrollBottom() { messages.scrollTop = messages.scrollHeight; }
+  function addMessage(role, text, details = "") {
+    const welcome = document.getElementById("welcome");
+    if (welcome) welcome.remove();
+    const row = document.createElement("div"); row.className = "message " + role;
+    const avatar = document.createElement("div"); avatar.className = "avatar"; avatar.textContent = role === "user" ? "YOU" : "B";
+    const content = document.createElement("div"); content.className = "content";
+    const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = text; content.appendChild(bubble);
+    if (details) { const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = details; content.appendChild(meta); }
+    row.append(avatar, content); messages.appendChild(row); scrollBottom();
+    return { row, bubble, content };
+  }
+  function bindPrompts() {
+    messages.querySelectorAll("[data-prompt]").forEach(button => {
+      button.onclick = () => { input.value = button.dataset.prompt || ""; input.focus(); resizeInput(); };
+    });
+  }
+  function resizeInput() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; }
+
+  document.getElementById("toggleSettings").onclick = () => {
+    settings.classList.toggle("open");
+    if (settings.classList.contains("open")) keyInput.focus();
+  };
+  document.getElementById("saveKey").onclick = () => {
+    apiKey = keyInput.value.trim();
+    if (!apiKey) { setStatus("API key needed", true); keyInput.focus(); return; }
+    setStatus("Test key ready"); settings.classList.remove("open"); input.focus();
+  };
+
+  async function sendMessage(raw) {
+    const message = raw.trim();
+    if (!message || busy) return;
+    if (!apiKey) {
+      settings.classList.add("open"); setStatus("Add test API key", true);
+      addMessage("assistant", "Open API settings and enter a test API key with the chat:use permission.");
+      keyInput.focus(); return;
+    }
+    addMessage("user", message);
+    if (chatTitle.textContent === "New chat") chatTitle.textContent = message.length > 28 ? message.slice(0, 28) + "…" : message;
+    input.value = ""; resizeInput(); busy = true; send.disabled = true; send.textContent = "…";
+    const pending = addMessage("assistant", "Thinking…", "Connecting to BAYEJID API");
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "Accept": "application/json"},
+        body: JSON.stringify({message})
+      });
+      let body;
+      try { body = await response.json(); }
+      catch { throw new Error("API returned a non-JSON response (HTTP " + response.status + "). Check the Vercel rewrite and deployment."); }
+      if (!response.ok || body?.success === false) {
+        const err = body?.error?.message || body?.message || "Request failed";
+        const code = body?.error?.code ? " · " + body.error.code : "";
+        throw new Error("HTTP " + response.status + code + ": " + err);
+      }
+      const data = body?.data ?? body;
+      const answer = data?.message ?? data?.answer ?? data?.response ?? data?.reply;
+      if (typeof answer !== "string" || !answer.trim()) throw new Error("The API responded, but no answer text was found. Check the response JSON format.");
+      pending.bubble.textContent = answer;
+      const detail = [data.source ? "Source: " + data.source : "", data.model ? "Model: " + data.model : "", typeof data.confidence === "number" ? "Confidence: " + data.confidence : ""].filter(Boolean).join(" · ");
+      if (detail) { const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = detail; pending.content.appendChild(meta); }
+      setStatus("API connected");
+    } catch (error) {
+      let errorText = error instanceof Error ? error.message : "Could not reach API.";
+      if (error instanceof TypeError && /fetch/i.test(error.message)) errorText = "Network request failed. Confirm vercel.json is deployed and rewrites /api/v1/chat to https://bayejidai.vercel.app/api/v1/chat.";
+      pending.bubble.textContent = errorText; pending.bubble.classList.add("error-text");
+      const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = "Check the API key, chat:use scope, frontend rewrite deployment, and backend status."; pending.content.appendChild(meta);
+      setStatus("Request failed", true);
+    } finally { busy = false; send.disabled = false; send.textContent = "↑"; input.focus(); scrollBottom(); }
+  }
+
+  form.addEventListener("submit", event => { event.preventDefault(); void sendMessage(input.value); });
+  input.addEventListener("input", resizeInput);
+  input.addEventListener("keydown", event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); form.requestSubmit(); } });
+
+  function resetChat() {
+    if (busy) return;
+    messages.innerHTML = '<div class="welcome" id="welcome"><div class="welcome-icon">✦</div><h2>What can I help you with?</h2><p>Ask a question and BAYEJID AI will use your connected API to respond.</p><div class="suggestions"><button type="button" data-prompt="Who is Bayejid?">Who is Bayejid?</button><button type="button" data-prompt="What is your name?">Your name</button><button type="button" data-prompt="What can you do?">What can you do?</button></div></div>';
+    chatTitle.textContent = "New chat"; bindPrompts(); input.focus();
+  }
+  document.getElementById("newChat").onclick = resetChat;
+  document.getElementById("clearChat").onclick = resetChat;
+  bindPrompts();
+})();
+</script>
+</body>
+</html>
